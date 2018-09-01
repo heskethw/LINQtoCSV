@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace LINQtoCSV
 {
@@ -84,7 +85,7 @@ namespace LINQtoCSV
                     CsvFileDescription fileDescription) where T : class, new()
         {
             // If T implements IDataRow, then we're reading raw data rows 
-            bool readingRawDataRows = typeof(IDataRow).IsAssignableFrom(typeof(T));
+            bool readingRawDataRows = typeof(IDataRow).GetTypeInfo().IsAssignableFrom(typeof(T));
 
             // The constructor for FieldMapper_Reading will throw an exception if there is something
             // wrong with type T. So invoke that constructor before you open the file, because if there
@@ -110,7 +111,7 @@ namespace LINQtoCSV
             if (readingFile)
             {
                 stream = new StreamReader(
-                                    fileName, 
+                                    File.Open(fileName, FileMode.Open), 
                                     fileDescription.TextEncoding,
                                     fileDescription.DetectEncodingFromByteOrderMarks);
             }
@@ -209,7 +210,7 @@ namespace LINQtoCSV
             {
                 if (readingFile)
                 {
-                    stream.Close();
+                    stream.Dispose();
                 }
 
                 // If any exceptions were raised while reading the data from the file,
@@ -228,8 +229,7 @@ namespace LINQtoCSV
             CsvFileDescription fileDescription) 
         {
             using (StreamWriter sw = new StreamWriter(
-                                                fileName,
-                                                false,
+                                                File.Open(fileName, FileMode.OpenOrCreate),
                                                 fileDescription.TextEncoding))
             {
                 WriteData<T>(values, fileName, sw, fileDescription);

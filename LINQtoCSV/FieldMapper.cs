@@ -96,14 +96,14 @@ namespace LINQtoCSV
             // functionality that TypeConverter doesn't give you.
 
             tfi.parseNumberMethod =
-                tfi.fieldType.GetMethod("Parse",
+                tfi.fieldType.GetTypeInfo().GetMethod("Parse",
                     new Type[] { typeof(String), typeof(NumberStyles), typeof(IFormatProvider) });
 
             if (tfi.parseNumberMethod == null)
             {
                 if (m_fileDescription.UseOutputFormatForParsingCsvValue)
                 {
-                    tfi.parseExactMethod = tfi.fieldType.GetMethod("ParseExact",
+                    tfi.parseExactMethod = tfi.fieldType.GetTypeInfo().GetMethod("ParseExact",
                         new Type[] {typeof (string), typeof (string), typeof (IFormatProvider)});
                 }
 
@@ -180,7 +180,7 @@ namespace LINQtoCSV
             // ------
             // Initialize NameToInfo
 
-            foreach (MemberInfo mi in type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static ))
+            foreach (MemberInfo mi in type.GetTypeInfo().GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static ))
             {
                 // Only process field and property members.
                 if ((mi.MemberType == MemberTypes.Field) ||
