@@ -430,19 +430,19 @@ namespace LINQtoCSV
                 _mappingIndexes.Add(i, currentNameIndex);
                 currentNameIndex++;
             }
-
-            //Loop to the 
+            
+            // Re-order m_IndexToInfo to match the field names
             for (int i = 0; i < row.Count; i++) {
                 if (!_mappingIndexes.ContainsKey(i)) {
                     continue;
                 }
 
-		TypeFieldInfo tfi = m_NameToInfo[row[i].Value];
-		m_IndexToInfo.Remove(tfi);
-		m_IndexToInfo.Insert(_mappingIndexes[i], tfi);
+		        TypeFieldInfo tfi = m_NameToInfo[row[i].Value];
+		        m_IndexToInfo.Remove(tfi);
+		        m_IndexToInfo.Insert(_mappingIndexes[i], tfi);
 
-		if (m_fileDescription.EnforceCsvColumnAttribute && !tfi.hasColumnAttribute)
-		{
+		        if (m_fileDescription.EnforceCsvColumnAttribute && !tfi.hasColumnAttribute)
+		        {
                     // enforcing column attr, but this field/prop has no column attr.
                     throw new MissingCsvColumnAttributeException(typeof (T).ToString(), row[i].Value, m_fileName);
                 }
