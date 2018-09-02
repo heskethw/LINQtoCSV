@@ -367,5 +367,89 @@ and a quoted ""string"""
             AssertRead(input, description, expected);
 
         }
+        
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregatedException), "A userId of null was inappropriately allowed.")]
+        public void RegexColumnWithInvalidDataShouldThrowException() {
+            var description = new CsvFileDescription
+            {
+                SeparatorChar = ',',
+                FirstLineHasColumnNames = true,
+                IgnoreUnknownColumns = true,
+            };
+            
+            //The following input has 5 columns: Id | Name | Last Name | Age | City. Only the Name, Last Name and Age will be read.
+            
+            var input =
+                @"Id,Name,Last Name,Age,Gender,City
+1,John,Doe,15,Test,Washington
+2,Jane,Doe,20,Test,New York
+";
+            var expected = new[]
+            {
+                new PersonRegex
+                {
+                    Name = "John",
+                    LastName = "Doe",
+                    Age = 15
+                },
+                new PersonRegex
+                {
+                    Name = "Jane",
+                    LastName = "Doe",
+                    Age = 20
+                },
+            };
+
+            AssertRead(input, description, expected);
+
+        }
+
+        [TestMethod]
+        public void RegexColumnWithValidData() {
+            var description = new CsvFileDescription
+            {
+                SeparatorChar = ',',
+                FirstLineHasColumnNames = true,
+                IgnoreUnknownColumns = true,
+            };
+            
+            //The following input has 5 columns: Id | Name | Last Name | Age | City. Only the Name, Last Name and Age will be read.
+            
+            var input =
+                @"Id,Name,Last Name,Age,Gender,City
+1,John,Doe,15,Male,Washington
+2,Jane,Doe,20,Female,New York
+3,Jo,Doe,20,Other,New York
+";
+            var expected = new[]
+            {
+                new PersonRegex
+                {
+                    Name = "John",
+                    LastName = "Doe",
+                    Age = 15,
+                    Gender = "Male"
+                },
+                new PersonRegex
+                {
+                    Name = "Jane",
+                    LastName = "Doe",
+                    Age = 20,
+                    Gender = "Female"
+                },
+                new PersonRegex
+                {
+                    Name = "Jo",
+                    LastName = "Doe",
+                    Age = 20,
+                    Gender = "Other"
+                },
+            };
+
+            AssertRead(input, description, expected);
+
+        }
     }
 }
