@@ -52,8 +52,7 @@ namespace LINQtoCSV.Tests
         /// </returns>
         public IEnumerable<T> TestRead<T>(string testInput, CsvFileDescription fileDescription) where T : class, new()
         {
-            CsvContext cc = new CsvContext();
-            return cc.Read<T>(StreamReaderFromString(testInput), fileDescription);
+            return CsvContext.Read<T>(StreamReaderFromString(testInput), fileDescription);
         }
 
         /// <summary>
@@ -97,8 +96,7 @@ namespace LINQtoCSV.Tests
         public string TestWrite<T>(IEnumerable<T> values, CsvFileDescription fileDescription) where T : class
         {
             TextWriter stream = new StringWriter();
-            CsvContext cc = new CsvContext();
-            cc.Write(values, stream, fileDescription);
+            CsvContext.Write(values, stream, fileDescription);
             return stream.ToString();
         }
 

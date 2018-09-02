@@ -17,9 +17,7 @@ namespace SampleCode
 
             // ------------------
             // Simple Read example
-
-            CsvContext cc = new CsvContext();
-
+            
             CsvFileDescription inputFileDescription = new CsvFileDescription
             {
                 SeparatorChar = ',', 
@@ -28,7 +26,7 @@ namespace SampleCode
             };
 
             IEnumerable<Product> products =
-                cc.Read<Product>("../../TestFiles/products.csv", inputFileDescription);
+                CsvContext.Read<Product>("../../TestFiles/products.csv", inputFileDescription);
 
             var productsByName =
                 from p in products
@@ -53,7 +51,7 @@ namespace SampleCode
                 where p.Country == "Netherlands"
                 select new { p.Name, p.LaunchDate, p.Price, p.Description };
 
-            cc.Write(
+            CsvContext.Write(
                 productsNetherlands,
                 "../../TestFiles/output-products-Netherlands.csv", 
                 outputFileDescription);
@@ -67,7 +65,7 @@ namespace SampleCode
             products2.Add(new Product { Name = "Garden Lamp", Country = "Germany", Price = 16.90M });
             products2.Add(new Product { Name = "Chandelier", Country = "Austria", Price = 109.00M });
 
-            cc.Write(
+            CsvContext.Write(
                 products2,
                 "../../TestFiles/output-products-Netherlands-formatted.csv",
                 outputFileDescription);
@@ -84,15 +82,13 @@ namespace SampleCode
         {
             try
             {
-                CsvContext cc = new CsvContext();
-
                 CsvFileDescription inputFileDescription = new CsvFileDescription
                 {
                     MaximumNbrExceptions = 50 // limit number of aggregated exceptions to 50
                 };
 
                 IEnumerable<Product> products =
-                    cc.Read<Product>("../../TestFiles/products.csv", inputFileDescription);
+                    CsvContext.Read<Product>("../../TestFiles/products.csv", inputFileDescription);
 
                 // NOT SHOWN IN EXAMPLE IN ARTICLE
                 foreach (var item in products) { Console.WriteLine(item); }

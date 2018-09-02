@@ -5,65 +5,87 @@ using System.Reflection;
 
 namespace LINQtoCSV
 {
-
     /// <summary>
     /// Summary description for CsvContext
     /// </summary>
-    public class CsvContext
+    public static class CsvContext
     {
-        /// ///////////////////////////////////////////////////////////////////////
-        /// Read
-        /// 
+        #region Read
+        
         /// <summary>
         /// Reads the comma separated values from a stream or file.
-        /// Returns the data into an IEnumerable<T> that can be used for LINQ queries.
+        /// Returns the data into an IEnumerable that can be used for LINQ queries.
         /// 
         /// The stream or file will be closed after the last line has been processed.
         /// Because the library implements deferred reading (using Yield Return), this may not happen
         /// for a while.
         /// </summary>
-        /// <typeparam name="T">
-        /// The records in the returned IEnumerable<T> will be of this type.
-        /// </typeparam>
-        /// <param name="stream">
-        /// The data will be read from this stream.
-        /// </param>
-        /// <param name="fileDescription">
-        /// Additional information how the input file is to be interpreted, such as the culture of the input dates.
-        /// </param>
-        /// <returns>
-        /// Values read from the stream or file.
-        /// </returns>
-        public IEnumerable<T> Read<T>(string fileName, CsvFileDescription fileDescription) where T : class, new()
+        /// <typeparam name="T">The records in the returned IEnumerable will be of this type.</typeparam>
+        /// <param name="fileName">The data will be read from this file.</param>
+        /// <param name="fileDescription">Additional information how the input file is to be interpreted, such as the culture of the input dates.</param>
+        /// <returns>Values read from the stream or file.</returns>
+        public static IEnumerable<T> Read<T>(string fileName, CsvFileDescription fileDescription) where T : class, new()
         {
             // Note that ReadData will not be called right away, but when the returned 
             // IEnumerable<T> actually gets accessed.
 
-            IEnumerable<T> ie = ReadData<T>(fileName, null, fileDescription);
+            var ie = ReadData<T>(fileName, null, fileDescription);
             return ie;
         }
 
-        public IEnumerable<T> Read<T>(StreamReader stream) where T : class, new()
+        /// <summary> 
+        /// Reads the comma separated values from a stream or file.
+        /// Returns the data into an IEnumerable that can be used for LINQ queries.
+        /// 
+        /// The stream or file will be closed after the last line has been processed.
+        /// Because the library implements deferred reading (using Yield Return), this may not happen
+        /// for a while.
+        /// </summary>
+        /// <typeparam name="T">The records in the returned IEnumerable will be of this type.</typeparam>
+        /// <param name="stream">The data will be read from this stream.</param>
+        /// <returns>Values read from the stream or file.</returns>
+        public static IEnumerable<T> Read<T>(StreamReader stream) where T : class, new()
         {
             return Read<T>(stream, new CsvFileDescription());
         }
 
-        public IEnumerable<T> Read<T>(string fileName) where T : class, new()
+        /// <summary>
+        /// Reads the comma separated values from a stream or file.
+        /// Returns the data into an IEnumerable that can be used for LINQ queries.
+        /// 
+        /// The stream or file will be closed after the last line has been processed.
+        /// Because the library implements deferred reading (using Yield Return), this may not happen
+        /// for a while.
+        /// </summary>
+        /// <typeparam name="T">The records in the returned IEnumerable will be of this type.</typeparam>
+        /// <param name="fileName">The data will be read from this file.</param>
+        /// <returns>Values read from the stream or file.</returns>
+        public static IEnumerable<T> Read<T>(string fileName) where T : class, new()
         {
             return Read<T>(fileName, new CsvFileDescription());
         }
 
-        public IEnumerable<T> Read<T>(StreamReader stream, CsvFileDescription fileDescription) where T : class, new()
+        /// <summary>
+        /// Reads the comma separated values from a stream or file.
+        /// Returns the data into an IEnumerable that can be used for LINQ queries.
+        /// 
+        /// The stream or file will be closed after the last line has been processed.
+        /// Because the library implements deferred reading (using Yield Return), this may not happen
+        /// for a while.
+        /// </summary>
+        /// <typeparam name="T">The records in the returned IEnumerable will be of this type.</typeparam>
+        /// <param name="stream">The data will be read from this stream.</param>
+        /// <param name="fileDescription">Additional information how the input file is to be interpreted, such as the culture of the input dates.</param>
+        /// <returns>Values read from the stream or file.</returns>
+        public static IEnumerable<T> Read<T>(StreamReader stream, CsvFileDescription fileDescription) where T : class, new()
         {
             return ReadData<T>(null, stream, fileDescription);
         }
 
-        /// ///////////////////////////////////////////////////////////////////////
-        /// ReadData
         /// <summary>
-        /// 
+        /// Read Data
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The records in the returned IEnumerable will be of this type.</typeparam>
         /// <param name="fileName">
         /// Name of the file associated with the stream.
         /// 
@@ -77,15 +99,12 @@ namespace LINQtoCSV
         /// because we need to be able to seek back to the start of the
         /// stream, and you can't do that with a TextReader (or StringReader).
         /// </param>
-        /// <param name="fileDescription"></param>
-        /// <returns></returns>
-        private IEnumerable<T> ReadData<T>(
-                    string fileName, 
-                    StreamReader stream, 
-                    CsvFileDescription fileDescription) where T : class, new()
+        /// <param name="fileDescription">Additional information how the input file is to be interpreted, such as the culture of the input dates.</param>
+        /// <returns>Values read from the stream or file.</returns>
+        private static IEnumerable<T> ReadData<T>(string fileName, StreamReader stream, CsvFileDescription fileDescription) where T : class, new()
         {
             // If T implements IDataRow, then we're reading raw data rows 
-            bool readingRawDataRows = typeof(IDataRow).GetTypeInfo().IsAssignableFrom(typeof(T));
+            var readingRawDataRows = typeof(IDataRow).GetTypeInfo().IsAssignableFrom(typeof(T));
 
             // The constructor for FieldMapper_Reading will throw an exception if there is something
             // wrong with type T. So invoke that constructor before you open the file, because if there
@@ -106,14 +125,14 @@ namespace LINQtoCSV
             //
             // So, open the file here, or rewind the stream.
 
-            bool readingFile = !string.IsNullOrEmpty(fileName);
+            var readingFile = !string.IsNullOrEmpty(fileName);
 
             if (readingFile)
             {
                 stream = new StreamReader(
-                                    File.Open(fileName, FileMode.Open), 
-                                    fileDescription.TextEncoding,
-                                    fileDescription.DetectEncodingFromByteOrderMarks);
+                    File.Open(fileName, FileMode.Open),
+                    fileDescription.TextEncoding,
+                    fileDescription.DetectEncodingFromByteOrderMarks);
             }
             else
             {
@@ -129,12 +148,12 @@ namespace LINQtoCSV
 
             // ----------
 
-            CsvStream cs = new CsvStream(stream, null, fileDescription.SeparatorChar, fileDescription.IgnoreTrailingSeparatorChar);
-            
+            var cs = new CsvStream(stream, null, fileDescription.SeparatorChar, fileDescription.IgnoreTrailingSeparatorChar);
+
             // If we're reading raw data rows, instantiate a T so we return objects
             // of the type specified by the caller.
             // Otherwise, instantiate a DataRow, which also implements IDataRow.
-            IDataRow row = null;
+            IDataRow row;
             if (readingRawDataRows)
             {
                 row = new T() as IDataRow;
@@ -144,8 +163,7 @@ namespace LINQtoCSV
                 row = new DataRow();
             }
 
-            AggregatedException ae =
-                new AggregatedException(typeof(T).ToString(), fileName, fileDescription.MaximumNbrExceptions);
+            var ae = new AggregatedException(typeof(T).ToString(), fileName, fileDescription.MaximumNbrExceptions);
 
             try
             {
@@ -155,15 +173,15 @@ namespace LINQtoCSV
                     charLengths = fm.GetCharLengths();
                 }
 
-                bool firstRow = true;
+                var firstRow = true;
                 while (cs.ReadRow(row, charLengths))
                 {
                     // Skip empty lines.
                     // Important. If there is a newline at the end of the last data line, the code
                     // thinks there is an empty line after that last data line.
-                    if ((row.Count == 1) && 
+                    if ((row.Count == 1) &&
                         ((row[0].Value == null) ||
-                         (string.IsNullOrEmpty(row[0].Value.Trim())) ))
+                         (string.IsNullOrEmpty(row[0].Value.Trim()))))
                     {
                         continue;
                     }
@@ -174,7 +192,7 @@ namespace LINQtoCSV
                     }
                     else
                     {
-                        T obj = default(T);
+                        var obj = default(T);
                         try
                         {
                             if (readingRawDataRows)
@@ -186,12 +204,12 @@ namespace LINQtoCSV
                                 obj = fm.ReadObject(row, ae);
                             }
                         }
-                        catch (AggregatedException ae2)
+                        catch (AggregatedException)
                         {
                             // Seeing that the AggregatedException was thrown, maximum number of exceptions
                             // must have been reached, so rethrow.
                             // Catch here, so you don't add an AggregatedException to an AggregatedException
-                            throw ae2;
+                            throw;
                         }
                         catch (Exception e)
                         {
@@ -219,55 +237,39 @@ namespace LINQtoCSV
                 ae.ThrowIfExceptionsStored();
             }
         }
-
-        /// ///////////////////////////////////////////////////////////////////////
-        /// Write
-        /// 
-        public void Write<T>(
-            IEnumerable<T> values, 
-            string fileName, 
-            CsvFileDescription fileDescription) 
+        
+        #endregion
+        #region Write
+        
+        public static void Write<T>(IEnumerable<T> values, string fileName, CsvFileDescription fileDescription)
         {
-            using (StreamWriter sw = new StreamWriter(
-                                                File.Open(fileName, FileMode.OpenOrCreate),
-                                                fileDescription.TextEncoding))
+            using (var sw = new StreamWriter(File.Open(fileName, FileMode.OpenOrCreate), fileDescription.TextEncoding))
             {
-                WriteData<T>(values, fileName, sw, fileDescription);
+                WriteData(values, fileName, sw, fileDescription);
             }
         }
 
-        public void Write<T>(
-            IEnumerable<T> values,
-            TextWriter stream) 
+        public static void Write<T>(IEnumerable<T> values, TextWriter stream)
         {
-            Write<T>(values, stream, new CsvFileDescription());
+            Write(values, stream, new CsvFileDescription());
         }
 
-        public void Write<T>(
-            IEnumerable<T> values, 
-            string fileName) 
+        public static void Write<T>(IEnumerable<T> values, string fileName)
         {
-            Write<T>(values, fileName, new CsvFileDescription());
+            Write(values, fileName, new CsvFileDescription());
         }
 
-        public void Write<T>(
-            IEnumerable<T> values,
-            TextWriter stream,
-            CsvFileDescription fileDescription) 
+        public static void Write<T>(IEnumerable<T> values, TextWriter stream, CsvFileDescription fileDescription)
         {
-            WriteData<T>(values, null, stream, fileDescription);
+            WriteData(values, null, stream, fileDescription);
         }
-
-        private void WriteData<T>(
-            IEnumerable<T> values,
-            string fileName,
-            TextWriter stream, 
-            CsvFileDescription fileDescription) 
+        
+        private static void WriteData<T>(IEnumerable<T> values, string fileName, TextWriter stream, CsvFileDescription fileDescription)
         {
-            FieldMapper<T> fm = new FieldMapper<T>(fileDescription, fileName, true);
-            CsvStream cs = new CsvStream(null, stream, fileDescription.SeparatorChar, fileDescription.IgnoreTrailingSeparatorChar);
+            var fm = new FieldMapper<T>(fileDescription, fileName, true);
+            var cs = new CsvStream(null, stream, fileDescription.SeparatorChar, fileDescription.IgnoreTrailingSeparatorChar);
 
-            List<string> row = new List<string>();
+            var row = new List<string>();
 
             // If first line has to carry the field names, write the field names now.
             if (fileDescription.FirstLineHasColumnNames)
@@ -278,7 +280,7 @@ namespace LINQtoCSV
 
             // -----
 
-            foreach (T obj in values)
+            foreach (var obj in values)
             {
                 // Convert obj to row
                 fm.WriteObject(obj, row);
@@ -286,14 +288,6 @@ namespace LINQtoCSV
             }
         }
 
-        /// ///////////////////////////////////////////////////////////////////////
-        /// CsvContext
-        /// 
-        /// <summary>
-        /// 
-        /// </summary>
-        public CsvContext()
-        {
-        }
+        #endregion
     }
 }
